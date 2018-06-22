@@ -1,0 +1,12 @@
+
+type PaymentMethod {
+
+}
+
+extend type Query {
+  # Filters based on auth, active/inactive, maybe IP/region, shop, etc.
+  availablePaymentMethods(shopId: ID!): [PaymentMethod]
+
+  # for admins to get all
+  paymentMethods(shopId: ID!): [PaymentMethod]
+}

@@ -1,0 +1,98 @@
+type FulfillmentData {
+  # Set Address._id to optional reference passed when setting the shippingAddress
+  shippingAddress: Address
+}
+
+type Fulfillment implements Node {
+  ""
+  _id: ID!
+
+  data: FulfillmentData
+
+  # DB would store only cart item ID
+  items: [CartItem]!
+
+  type: String!
+}
+
+type PaymentMethodSelectionInfo implements Node {
+  _id: ID!
+
+  amount: Int!
+
+  currency: Currency
+
+  data: PaymentMethodData
+
+  type: String!
+}
+
+type TaxSummary {
+  amount: Float!
+
+  currency: Currency
+
+  displayTax: String!
+}
+
+type Summary {
+  displayFulfillmentAmount: String!
+  displaySubtotal: String!
+  displayTotal: String!
+  taxSummary: TaxSummary!
+}
+
+type Checkout {
+  fulfillments: [Fulfillment]!
+
+  selectedPaymentMethods: [PaymentMethodSelectionInfo]
+
+  summary: Summary
+}
+
+input SetShippingAddressInput {
+  address: AddressInput!
+
+  reference: String
+
+  clientMutationId: String
+}
+
+type SetShippingAddressPayload {
+  checkout: Checkout!
+
+  clientMutationId: String
+}
+
+# Maybe strong type PaymentMethodData
+type PaymentMethodData {
+  savedCardId: String!
+  # paypal conf, BTC trans ID
+}
+
+# For some payment methods, this will have more user-entered data on it
+input PaymentMethodDataInput {
+  savedCardId: String!
+  # paypal conf, BTC trans ID
+}
+
+input SetPaymentInput {
+  data: PaymentMethodDataInput # for disambiguating for multiple of same type; this is different per payment method, but is strong typed
+  type: String! # "saved_card"
+}
+
+type SetPaymentPayload {
+  checkout: Checkout!
+
+  clientMutationId: String
+}
+
+extend type Mutation {
+  setShippingAddress(input: SetShippingAddressInput!): SetShippingAddressPayload!
+
+  setPayment(input: SetPaymentInput!): SetPaymentPayload!
+
+  # Maybe add later
+  # addPayment(input: AddPaymentInput!): AddPaymentPayload!
+  # removePayment(input: RemovePaymentInput!): RemovePaymentPayload!
+}
